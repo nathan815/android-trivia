@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Trivia</string>
+    <string name="app_name">Trivia Friends</string>
+    <string name="title_activity_game">GameActivity</string>
 </resources>
