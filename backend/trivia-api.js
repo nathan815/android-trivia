@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 
-module.exports = async function (amount = 10, difficulty = 'easy') {
-  const url = `https://opentdb.com/api.php?amount=${amount}&difficulty=${difficulty}&type=multiple`;
+module.exports = async function (amount = 10) {
+  const url = `https://opentdb.com/api.php?amount=${amount}&type=multiple`;
   console.log('Fetching from', url);
   const data = await fetch(url).then(response => response.json());
   return data.results.map(question => {
