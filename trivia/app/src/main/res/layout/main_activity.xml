@@ -22,19 +22,21 @@
         android:textSize="20sp"
         android:paddingVertical="15dp"
         android:textColor="#fff"
-        android:text="New Game" />
+        android:text="New Game"
+        android:onClick="newGame"/>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:paddingVertical="15dp"
-        android:text="Join By Code" />
+        android:text="Join Existing Game"
+        android:onClick="joinGame"/>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:layout_marginVertical="40dp"
+        android:layout_marginVertical="30dp"
         android:background="#ccc" />
 
     <LinearLayout
