@@ -1,15 +1,20 @@
 package com.hackernate.trivia;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+import com.hackernate.trivia.data.Game;
 import com.hackernate.trivia.data.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -25,7 +30,7 @@ public class MainManager {
     private MainManager(Socket socket, SharedPreferences sharedPref) {
         this.socket = socket;
         this.sharedPref = sharedPref;
-        listeners();
+        socketListeners();
     }
 
     public static MainManager getInstance(TriviaApplication application) {
@@ -35,7 +40,7 @@ public class MainManager {
         return instance;
     }
 
-    private void listeners() {
+    private void socketListeners() {
         socket.on(Socket.EVENT_RECONNECT, (args) -> {
             userEntered(getSavedUser());
         });
@@ -71,12 +76,21 @@ public class MainManager {
         socket.emit("game:join", id);
         socket.once("game:joined", (args) -> {
             socket.off("game:join.error");
-            callback.accept(true, "");
+            callback.accept(true, null);
         });
         socket.once("game:join.error", (args) -> {
-            System.out.println("error: "+ (String)args[0]);
+            System.out.println("error: "+ args[0]);
             socket.off("game:joined");
             callback.accept(false, (String)args[0]);
+        });
+    }
+
+    public void getMyGames(Consumer<List<Game>> callback) {
+        socket.emit("game:list");
+        socket.once("game:list.response", (args) -> {
+            Type listType = new TypeToken<ArrayList<Game>>(){}.getType();
+            List<Game> games = gson.fromJson((String)args[0], listType);
+            callback.accept(games);
         });
     }
 }

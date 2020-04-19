@@ -9,11 +9,13 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.hackernate.trivia.data.Game;
 import com.hackernate.trivia.data.User;
 
 import java.util.UUID;
@@ -27,7 +29,8 @@ public class MainActivity extends AppCompatActivity {
     Socket socket;
     MainManager manager;
 
-    TextView usernameText;
+    TextView usernameText, gameListNoGamesText;
+    LinearLayout gameList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         usernameText = findViewById(R.id.username);
+        gameList = findViewById(R.id.game_list);
+        gameListNoGamesText = findViewById(R.id.game_list_message);
 
         TriviaApplication app = (TriviaApplication) getApplication();
         socket = app.getSocket();
@@ -44,17 +49,46 @@ public class MainActivity extends AppCompatActivity {
 
         socket.on(Socket.EVENT_CONNECT, (args) -> {
             runOnUiThread(() -> {
-                Toast.makeText(this, "Connected", Toast.LENGTH_LONG).show();
+                Utils.showBottomToast(this, "Connected", Toast.LENGTH_LONG);
             });
-            socket.emit("syn");
         });
 
         askForUsername();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        renderGameList();
+    }
+
     private void setUpInterface(User user) {
         manager.userEntered(user);
         usernameText.setText("Welcome, " + user.username);
+    }
+
+    private void renderGameList() {
+        manager.getMyGames(games -> runOnUiThread(() -> {
+            gameList.removeAllViews();
+            gameListNoGamesText.setVisibility(games.size() == 0 ? View.VISIBLE : View.GONE);
+            for(Game game : games) {
+                gameList.addView(renderGameItem(game));
+            }
+        }));
+    }
+
+    private View renderGameItem(Game game) {
+        View row = getLayoutInflater().inflate(R.layout.game_list_row, gameList, false);
+        TextView nameText = row.findViewById(R.id.game_row_name);
+        nameText.setText(game.name);
+        TextView codeText = row.findViewById(R.id.game_row_game_code);
+        codeText.setText(game.id);
+        Button viewBtn = row.findViewById(R.id.game_row_btn);
+        viewBtn.setOnClickListener((view) -> {
+            navigateToGame(game.id);
+            view.setEnabled(false);
+        });
+        return row;
     }
 
     private void askForUsername() {
@@ -92,9 +126,7 @@ public class MainActivity extends AppCompatActivity {
                     dialog.dismiss();
                     navigateToGame(id);
                 } else {
-                    Toast t = Toast.makeText(this, "Error: " + error, Toast.LENGTH_LONG);
-                    t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
-                    t.show();
+                    Utils.showTopToast(this, "Error: " + error, Toast.LENGTH_LONG);
                 }
             }));
             return false;
