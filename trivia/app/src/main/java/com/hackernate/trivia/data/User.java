@@ -1,7 +1,10 @@
 package com.hackernate.trivia.data;
 
 
+import com.google.gson.annotations.SerializedName;
+
 public class User {
+    @SerializedName("_id")
     public String id;
     public String username;
 
