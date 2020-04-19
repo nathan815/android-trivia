@@ -46,7 +46,6 @@
             android:background="#ccc" />
 
         <LinearLayout
-            android:id="@+id/game_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -64,6 +63,12 @@
                 android:text="No games played yet. Play now!"
                 android:textStyle="italic"
                 />
+
+            <LinearLayout
+                android:id="@+id/game_list"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
     </LinearLayout>
