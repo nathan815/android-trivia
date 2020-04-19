@@ -77,11 +77,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void newGame(View v) {
         inputDialog("What would you like to call this game?", "Create", "Cancel", (name, dialog) -> {
-            manager.createGame(name, (id) -> {
-                runOnUiThread(dialog::dismiss);
-                navigateToGame(id);
+            manager.createGame(name, (id) -> runOnUiThread(() -> {
                 dialog.dismiss();
-            });
+                navigateToGame(id);
+            }));
             return false;
         });
     }
@@ -90,8 +89,8 @@ public class MainActivity extends AppCompatActivity {
         inputDialog("Please enter the game code", "Join", "Cancel", (id, dialog) -> {
             manager.joinGame(id, (success, error) -> runOnUiThread(() -> {
                 if (success) {
-                    navigateToGame(id);
                     dialog.dismiss();
+                    navigateToGame(id);
                 } else {
                     Toast t = Toast.makeText(this, "Error: " + error, Toast.LENGTH_LONG);
                     t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
