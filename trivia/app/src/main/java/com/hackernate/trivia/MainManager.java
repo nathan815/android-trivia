@@ -7,6 +7,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.hackernate.trivia.data.User;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -33,11 +36,15 @@ public class MainManager {
     }
 
     private void listeners() {
-
+        socket.on(Socket.EVENT_RECONNECT, (args) -> {
+            userEntered(getSavedUser());
+        });
     }
 
     public void userEntered(User user) {
-        socket.emit("user:enter", gson.toJson(user));
+        try {
+            socket.emit("user:enter", new JSONObject(gson.toJson(user)));
+        } catch(JSONException e) {}
     }
 
     public User getSavedUser() {
@@ -62,7 +69,14 @@ public class MainManager {
 
     public void joinGame(String id, BiConsumer<Boolean, String> callback) {
         socket.emit("game:join", id);
-        socket.once("game:joined", (args) -> callback.accept(true, ""));
-        socket.once("game:joined.error", (args) -> callback.accept(false, (String)args[0]));
+        socket.once("game:joined", (args) -> {
+            socket.off("game:join.error");
+            callback.accept(true, "");
+        });
+        socket.once("game:join.error", (args) -> {
+            System.out.println("error: "+ (String)args[0]);
+            socket.off("game:joined");
+            callback.accept(false, (String)args[0]);
+        });
     }
 }

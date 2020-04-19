@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         inputDialog("Hello! Enter your name", "Continue", null, (name, dialog) -> {
-            if("".equals(name)) {
+            if ("".equals(name)) {
                 return false;
             }
             User user = new User(UUID.randomUUID().toString(), name);
@@ -87,15 +88,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void joinGame(View v) {
         inputDialog("Please enter the game code", "Join", "Cancel", (id, dialog) -> {
-            manager.joinGame(id, (success, error) -> {
-                if(success) {
-                    runOnUiThread(dialog::dismiss);
+            manager.joinGame(id, (success, error) -> runOnUiThread(() -> {
+                if (success) {
                     navigateToGame(id);
                     dialog.dismiss();
                 } else {
-                    Toast.makeText(this, "Error: " + error, Toast.LENGTH_LONG).show();
+                    Toast t = Toast.makeText(this, "Error: " + error, Toast.LENGTH_LONG);
+                    t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
+                    t.show();
                 }
-            });
+            }));
             return false;
         });
     }
@@ -127,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
             Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             button.setOnClickListener(view -> {
                 String name = input.getText().toString().trim();
-                if(callback.apply(name, dialog)) {
+                if (callback.apply(name, dialog)) {
                     dialog.dismiss();
                 }
             });
