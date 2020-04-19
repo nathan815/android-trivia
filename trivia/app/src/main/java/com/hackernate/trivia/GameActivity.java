@@ -17,6 +17,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.hackernate.trivia.data.Game;
 import com.hackernate.trivia.data.Question;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import io.socket.client.Socket;
@@ -142,9 +145,18 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
         questionText.setText(question.getQuestion());
         questionPointsText.setText(question.getPoints() + " points");
         answerRadioGroup.removeAllViews();
+        List<RadioButton> radios = new ArrayList<>();
+        int i = 0;
         for(String answer : question.getAnswers()) {
             RadioButton radio = new RadioButton(this);
             radio.setText(answer);
+            radio.setTextSize(25);
+            radio.setTag(i);
+            i++;
+            radios.add(radio);
+        }
+        Collections.shuffle(radios);
+        for(RadioButton radio : radios) {
             answerRadioGroup.addView(radio);
         }
     }
