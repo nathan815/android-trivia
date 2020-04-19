@@ -4,28 +4,19 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.gson.Gson;
-import com.hackernate.trivia.data.Game;
-import com.hackernate.trivia.data.User;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.Arrays;
-import java.util.Collections;
+import com.hackernate.trivia.data.Game;
+import com.hackernate.trivia.data.Question;
+
 import java.util.stream.Collectors;
 
 import io.socket.client.Socket;
@@ -36,11 +27,14 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
 
     private Socket socket;
     private String gameId;
+    private MainManager mainManager;
     private GameManager gameManager;
     private Game game;
 
     View gameNotStartedContainer, gameStartedContainer;
-    TextView gameCodeText, playersInGameCountText, playersInGameNamesText;
+    TextView gameCodeText, playersInGameCountText, playersInGameNamesText,
+            waitingOnOwnerStartGameText, questionText;
+    RadioGroup answerRadioGroup;
     Button startGameBtn;
 
     @Override
@@ -54,17 +48,28 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
         playersInGameCountText = findViewById(R.id.players_in_game_count_text);
         playersInGameNamesText = findViewById(R.id.players_in_game_names_text);
         startGameBtn = findViewById(R.id.start_game_btn);
+        waitingOnOwnerStartGameText = findViewById(R.id.waiting_owner_start_game);
 
         gameStartedContainer = findViewById(R.id.game_started);
+        questionText = findViewById(R.id.game_question_text);
+        answerRadioGroup = findViewById(R.id.game_answers_radio_group);
 
-        socket = ((TriviaApplication) getApplication()).getSocket();
+        TriviaApplication app = (TriviaApplication) getApplication();
+        socket = app.getSocket();
 
         Intent intent = getIntent();
         gameId = intent.getStringExtra("id");
 
+        mainManager = MainManager.getInstance(app);
         gameManager = new GameManager(gameId, socket, this);
 
         getSupportActionBar().setTitle("Loading...");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        gameManager.stopListeners();
     }
 
     @Override
@@ -75,6 +80,11 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
         });
     }
 
+    @Override
+    public void gameUpdated() {
+        runOnUiThread(this::drawUi);
+    }
+
     private void drawUi() {
         if (game == null) {
             return;
@@ -83,23 +93,56 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
             getSupportActionBar().setTitle(game.name);
         }
         if (game.isWaitingToStart()) {
+            showWaiting();
+        } else if (game.hasStarted()) {
+            showGamePlay();
+        } else {
+            // game completed
+        }
+    }
 
-            gameStartedContainer.setVisibility(View.GONE);
-            gameNotStartedContainer.setVisibility(View.VISIBLE);
-            if (game.canBeStarted()) {
+    private void showWaiting() {
+        gameStartedContainer.setVisibility(View.GONE);
+        gameNotStartedContainer.setVisibility(View.VISIBLE);
+        boolean isOwner = game.getOwnerId().equals(mainManager.getSavedUser().id);
+
+        waitingOnOwnerStartGameText.setVisibility(View.GONE);
+
+        if(game.canBeStarted()) {
+            if (isOwner) {
                 startGameBtn.setEnabled(true);
                 startGameBtn.setAlpha(1.0f);
+            } else {
+                waitingOnOwnerStartGameText.setVisibility(View.VISIBLE);
+                waitingOnOwnerStartGameText.setText("Waiting for " + game.getOwner().username + " to start");
             }
-            playersInGameCountText.setText("Players in Game: " + game.playersCount() + "/4");
-            playersInGameNamesText.setText(game.getPlayers().stream()
-                    .map(u -> u.username)
-                    .collect(Collectors.joining(", ")));
-            gameCodeText.setText(game.id);
-
-        } else if (game.hasStarted()) {
-            gameStartedContainer.setVisibility(View.VISIBLE);
-            gameNotStartedContainer.setVisibility(View.GONE);
         }
+
+        playersInGameCountText.setText("Players in Game: " + game.playersCount() + "/4");
+        playersInGameNamesText.setText(game.getPlayers().stream()
+                .map(u -> u.username)
+                .collect(Collectors.joining(", ")));
+        gameCodeText.setText(game.id);
+    }
+
+    private void showGamePlay() {
+        gameStartedContainer.setVisibility(View.VISIBLE);
+        gameNotStartedContainer.setVisibility(View.GONE);
+        displayQuestion(game.getLatestQuestion());
+    }
+
+    private void displayQuestion(Question question) {
+        questionText.setText(question.getText());
+        answerRadioGroup.removeAllViews();
+        for(String answer : question.getAnswers()) {
+            RadioButton radio = new RadioButton(this);
+            radio.setText(answer);
+            answerRadioGroup.addView(radio);
+        }
+    }
+
+    public void startGame(View v) {
+        gameManager.startGame();
     }
 
     public void copyCode(View v) {

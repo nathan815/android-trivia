@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingVertical="50dp"
+        android:visibility="visible"
         android:gravity="center_horizontal"
         android:orientation="vertical">
         <TextView
@@ -66,7 +67,15 @@
             android:layout_marginTop="50dp"
             android:enabled="false"
             android:alpha="0.3"
-            android:text="Start Game" />
+            android:text="Start Game"
+            android:onClick="startGame" />
+        <TextView
+            android:id="@+id/waiting_owner_start_game"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:text="Waiting for owner to start game" />
     </LinearLayout>
 
     <LinearLayout

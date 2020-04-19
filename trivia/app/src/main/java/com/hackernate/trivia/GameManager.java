@@ -2,6 +2,8 @@ package com.hackernate.trivia;
 
 import com.google.gson.Gson;
 import com.hackernate.trivia.data.Game;
+import com.hackernate.trivia.data.Question;
+import com.hackernate.trivia.data.User;
 
 import io.socket.client.Socket;
 
@@ -10,9 +12,11 @@ public class GameManager {
     private String gameId;
     private Game game;
     private Listener listener;
+    private Gson gson = new Gson();
 
     interface Listener {
         public void gameLoaded();
+        public void gameUpdated();
     }
 
     public GameManager(String gameId, Socket socket, Listener listener) {
@@ -36,7 +40,35 @@ public class GameManager {
         });
     }
 
+    public void startGame() {
+        socket.emit("game:start", gameId);
+    }
+
     private void setupListeners() {
-        socket.on("game:newQuestion", (args)->{});
+        socket.on("game:question", (args) -> {
+            Question question = gson.fromJson((String)args[0], Question.class);
+            game.questions.add(question);
+            listener.gameUpdated();
+        });
+
+        socket.on("game:player.join", (args) -> {
+            String gameId = (String)args[0];
+            System.out.println("PLAYER JOIN!");
+            if(!this.gameId.equals(gameId)) {
+                return;
+            }
+            User user = gson.fromJson((String)args[1], User.class);
+            System.out.println("PLAYER JOIN: " + user);
+            game.addPlayer(user);
+            listener.gameUpdated();
+        });
+
+        socket.on("game:starting", (args) -> System.out.println("GAME START!"));
+    }
+
+    public void stopListeners() {
+        socket.off("game:question");
+        socket.off("game:player.join");
+        socket.off("game:starting");
     }
 }

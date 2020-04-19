@@ -80,14 +80,14 @@ function setupSocketListeners(db, socket) {
       joinError('Max of 4 players already in this game');
       return;
     }
-    if (!game.players.some(p => p._id == currentUser._id)) {
-      game.players.push(currentUser);
+    if (!game.players[currentUser._id]) {
+      game.players[currentUser._id] = currentUser;
       updateGame(db, game);
-      return;
     }
     socket.join('game:' + code);
     socket.emit('game:joined', game._id);
-    io.sockets.in('game:' + code).emit('game:player.join', game._id, currentUser);
+    io.sockets.in('game:' + code).emit('game:player.join', game._id,
+      JSON.stringify(currentUser));
   });
 
   socket.on('game:create', async (name) => {
@@ -97,6 +97,7 @@ function setupSocketListeners(db, socket) {
       return;
     }
     const game = await createGame(db, name, sockets[socket.id].user);
+    socket.join('game:' + game._id);
     socket.emit('game:created', game._id);
   });
 
@@ -106,11 +107,39 @@ function setupSocketListeners(db, socket) {
     socket.emit('game:fetch.response', JSON.stringify(game));
   });
 
+  socket.on('game:start', async (id) => {
+    console.log('game:start', id);
+    const game = await findGame(db, id);
+
+    if (!game) {
+      console.log('game:start error: game doesnt exist', id);
+      return;
+    }
+
+    // only allow game owner to start game
+    if (getCurrentUser()._id != game.ownerId) {
+      console.log('game:start error: non-owner tried to start');
+      return;
+    }
+
+    game.status = 'inplay';
+    updateGame(db, game);
+    io.sockets.in('game:' + id).emit('game:starting', game._id);
+    askQuestion(id);
+  });
+
   socket.on('game:list', async () => {
     const games = await findUserGames(db, getCurrentUser()._id);
-    console.log('game list',games);
+    console.log('game list', games);
     socket.emit('game:list.response', JSON.stringify(games));
   });
+
+  function askQuestion(id) {
+    const question = findRandomQuestion();
+    game.questions.push(question);
+    io.sockets.in('game:' + id).emit('game:question', game._id, question);
+  }
+
 }
 
 function main(db) {
@@ -143,9 +172,11 @@ async function createGame(db, name, user) {
   const game = {
     _id: shortid.generate(),
     name,
-    ownerId: user._id,
-    players: [user],
     status: 'waiting',
+    ownerId: user._id,
+    players: { [user._id]: user },
+    playerResponses: {},
+    questions: [],
   };
   await db.collection('games').insertOne(game);
   return game;
@@ -161,11 +192,19 @@ function updateGame(db, game) {
 }
 
 async function findUserGames(db, userId) {
-  const games = await db.collection('games').find({ 
-    players: {
-      $elemMatch: { _id: userId } 
+  const games = await db.collection('games').find({
+    [`players.${userId}`]: {
+      $exists: true
     }
   }).toArray();
-  console.log('user games', userId, games);
+  console.log('user games', userId, games.map(g => ({ id: g._id, name: g.name })));
   return games;
+}
+
+function findRandomQuestion(db, game) {
+  const questionIdsUsed = game.questions.map(q => q._id);
+  return db.collection('questions').aggregate([
+    { $match: { _id: { $nin: questionIdsUsed } } },
+    { $sample: { size: 1 } }
+  ]);
 }
