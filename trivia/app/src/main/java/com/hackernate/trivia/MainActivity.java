@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        inputDialog("Hello! Enter your name", "Continue", null, (name, dialog) -> {
+        Utils.showInputDialog(this, "Hello! Enter your name", "Continue", null, (name, dialog) -> {
             if ("".equals(name)) {
                 return false;
             }
@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void newGame(View v) {
-        inputDialog("What would you like to call this game?", "Create", "Cancel", (name, dialog) -> {
+        Utils.showInputDialog(this, "What would you like to call this game?", "Create", "Cancel", (name, dialog) -> {
             manager.createGame(name, (id) -> runOnUiThread(() -> {
                 dialog.dismiss();
                 navigateToGame(id);
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void joinGame(View v) {
-        inputDialog("Please enter the game code", "Join", "Cancel", (id, dialog) -> {
+        Utils.showInputDialog(this, "Please enter the game code", "Join", "Cancel", (id, dialog) -> {
             manager.joinGame(id, (success, error) -> runOnUiThread(() -> {
                 if (success) {
                     dialog.dismiss();
@@ -139,32 +139,4 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void inputDialog(String title, String positiveButtonText, String negativeButtonText,
-                             BiFunction<String, Dialog, Boolean> callback) {
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        input.setTextSize(25);
-        input.setPadding(25, 40, 25, 40);
-
-        final AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setView(input)
-                .setPositiveButton(positiveButtonText, null)
-                .setNegativeButton(negativeButtonText, null)
-                .create();
-
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setCancelable(false);
-
-        dialog.setOnShowListener(dialogInterface -> {
-            Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            button.setOnClickListener(view -> {
-                String name = input.getText().toString().trim();
-                if (callback.apply(name, dialog)) {
-                    dialog.dismiss();
-                }
-            });
-        });
-        dialog.show();
-    }
 }
