@@ -33,7 +33,7 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
 
     View gameNotStartedContainer, gameStartedContainer;
     TextView gameCodeText, playersInGameCountText, playersInGameNamesText,
-            waitingOnOwnerStartGameText, questionText;
+            waitingOnOwnerStartGameText, questionText, questionPointsText;
     RadioGroup answerRadioGroup;
     Button startGameBtn;
 
@@ -52,6 +52,7 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
 
         gameStartedContainer = findViewById(R.id.game_started);
         questionText = findViewById(R.id.game_question_text);
+        questionPointsText = findViewById(R.id.game_question_points);
         answerRadioGroup = findViewById(R.id.game_answers_radio_group);
 
         TriviaApplication app = (TriviaApplication) getApplication();
@@ -64,6 +65,9 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
         gameManager = new GameManager(gameId, socket, this);
 
         getSupportActionBar().setTitle("Loading...");
+
+        gameStartedContainer.setVisibility(View.GONE);
+        gameNotStartedContainer.setVisibility(View.GONE);
     }
 
     @Override
@@ -102,7 +106,6 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
     }
 
     private void showWaiting() {
-        gameStartedContainer.setVisibility(View.GONE);
         gameNotStartedContainer.setVisibility(View.VISIBLE);
         boolean isOwner = game.getOwnerId().equals(mainManager.getSavedUser().id);
 
@@ -127,12 +130,17 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
 
     private void showGamePlay() {
         gameStartedContainer.setVisibility(View.VISIBLE);
-        gameNotStartedContainer.setVisibility(View.GONE);
-        displayQuestion(game.getLatestQuestion());
+        Question q = game.getLatestQuestion();
+        if(q == null) {
+            Utils.showBottomToast(this, "No question to show", Toast.LENGTH_LONG);
+        } else {
+            displayQuestion(q);
+        }
     }
 
     private void displayQuestion(Question question) {
-        questionText.setText(question.getText());
+        questionText.setText(question.getQuestion());
+        questionPointsText.setText(question.getPoints() + " points");
         answerRadioGroup.removeAllViews();
         for(String answer : question.getAnswers()) {
             RadioButton radio = new RadioButton(this);

@@ -35,8 +35,12 @@ public class Game {
         return status.equals("inplay");
     }
 
+    public void start() {
+        status = "inplay";
+    }
+
     public Question getLatestQuestion() {
-        return questions.get(questions.size()-1);
+        return questions.size() == 0 ? null : questions.get(questions.size()-1);
     }
 
     public Collection<User> getPlayers() {

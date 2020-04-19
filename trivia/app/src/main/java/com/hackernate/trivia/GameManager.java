@@ -46,14 +46,18 @@ public class GameManager {
 
     private void setupListeners() {
         socket.on("game:question", (args) -> {
-            Question question = gson.fromJson((String)args[0], Question.class);
+            String gameId = (String)args[0];
+            if(!this.gameId.equals(gameId)) {
+                return;
+            }
+            Question question = gson.fromJson((String)args[1], Question.class);
+            System.out.println("question: " + question);
             game.questions.add(question);
             listener.gameUpdated();
         });
 
         socket.on("game:player.join", (args) -> {
             String gameId = (String)args[0];
-            System.out.println("PLAYER JOIN!");
             if(!this.gameId.equals(gameId)) {
                 return;
             }
@@ -63,7 +67,10 @@ public class GameManager {
             listener.gameUpdated();
         });
 
-        socket.on("game:starting", (args) -> System.out.println("GAME START!"));
+        socket.on("game:starting", (args) -> {
+            System.out.println("GAME START!");
+            game.start();
+        });
     }
 
     public void stopListeners() {

@@ -116,6 +116,11 @@ function setupSocketListeners(db, socket) {
       return;
     }
 
+    if (game.status == 'inplay') {
+      console.log('game:start error: game already in play', id);
+      return;
+    }
+
     // only allow game owner to start game
     if (getCurrentUser()._id != game.ownerId) {
       console.log('game:start error: non-owner tried to start');
@@ -125,7 +130,7 @@ function setupSocketListeners(db, socket) {
     game.status = 'inplay';
     updateGame(db, game);
     io.sockets.in('game:' + id).emit('game:starting', game._id);
-    askQuestion(id);
+    await askQuestion(game);
   });
 
   socket.on('game:list', async () => {
@@ -134,10 +139,12 @@ function setupSocketListeners(db, socket) {
     socket.emit('game:list.response', JSON.stringify(games));
   });
 
-  function askQuestion(id) {
-    const question = findRandomQuestion();
+  async function askQuestion(game) {
+    const question = await findRandomQuestion(db, game);
+    console.log('askQuestion', question);
     game.questions.push(question);
-    io.sockets.in('game:' + id).emit('game:question', game._id, question);
+    await updateGame(db, game);
+    io.sockets.in('game:' + game._id).emit('game:question', game._id, JSON.stringify(question));
   }
 
 }
@@ -203,8 +210,9 @@ async function findUserGames(db, userId) {
 
 function findRandomQuestion(db, game) {
   const questionIdsUsed = game.questions.map(q => q._id);
-  return db.collection('questions').aggregate([
+  const cursor = db.collection('questions').aggregate([
     { $match: { _id: { $nin: questionIdsUsed } } },
     { $sample: { size: 1 } }
   ]);
+  return cursor.hasNext() ? cursor.next() : null;
 }
