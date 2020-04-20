@@ -17,6 +17,10 @@ public class Question {
         return answers;
     }
 
+    public int getCorrectIndex() {
+        return correctIndex;
+    }
+
     public int getPoints() {
         return points;
     }

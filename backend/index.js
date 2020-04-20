@@ -107,6 +107,46 @@ function setupSocketListeners(db, socket) {
     socket.emit('game:fetch.response', JSON.stringify(game));
   });
 
+  socket.on('game:submitAnswer', async (gameId, answerIndex) => {
+    console.log('game:submitAnswer', gameId, answerIndex);
+    const game = await findGame(db, gameId);
+    const currentQuestion = game.questions[game.questions.length - 1];
+    const currentUser = getCurrentUser();
+    if (!game) {
+      return;
+    }
+    if (!game.players[currentUser._id]) {
+      return;
+    }
+    if (answerIndex > 3) {
+      return;
+    }
+
+    const responses = game.playerResponses;
+    const currentPlayerResponses = responses[currentUser._id] || [];
+
+    if (currentPlayerResponses.length < game.questions.length) {
+      currentPlayerResponses.push(answerIndex);
+      game.playerResponses[currentUser._id] = currentPlayerResponses;
+      updateGame(db, game);
+    }
+
+    socket.emit('game:submitAnswer.response',
+      answerIndex === currentQuestion.correctIndex ? 'correct' : 'incorrect'
+    );
+
+    io.sockets.in('game:' + game._id).emit('game:playerAnswer', {
+      gameId: game._id,
+      userId: currentUser._id,
+      responses: currentPlayerResponses
+    });
+
+    if (canAskAnotherQuestion(game)) {
+      await askNextQuestion(db, game);
+    }
+    checkAndUpdateGameStatus(db, game);
+  });
+
   socket.on('game:start', async (id) => {
     console.log('game:start', id);
     const game = await findGame(db, id);
@@ -130,21 +170,56 @@ function setupSocketListeners(db, socket) {
     game.status = 'inplay';
     updateGame(db, game);
     io.sockets.in('game:' + id).emit('game:starting', game._id);
-    await askQuestion(game);
+    await askNextQuestion(db, game);
   });
 
   socket.on('game:list', async () => {
     const games = await findUserGames(db, getCurrentUser()._id);
-    console.log('game list', games);
     socket.emit('game:list.response', JSON.stringify(games));
   });
 
-  async function askQuestion(game) {
+  async function askNextQuestion(db, game) {
+    if (isGameOver(game)) {
+      return;
+    }
     const question = await findRandomQuestion(db, game);
     console.log('askQuestion', question);
     game.questions.push(question);
     await updateGame(db, game);
     io.sockets.in('game:' + game._id).emit('game:question', game._id, JSON.stringify(question));
+    return game;
+  }
+
+  async function endGame(db, game) {
+    if (game.status === 'done') {
+      return;
+    }
+    game.status = 'done';
+    updateGame(db, game);
+    io.sockets.in('game:' + game._id).emit('game:done', game._id);
+  }
+
+  function checkAndUpdateGameStatus(db, game) {
+    if (isGameOver(game)) {
+      endGame(db, game);
+    }
+  }
+
+  function hasEveryPlayerAnswered(game) {
+    if (game.questions.length === 0) {
+      return true;
+    }
+    const playerHasAnswered = (userId) => game.playerResponses[userId] &&
+      game.playerResponses[userId].length == game.questions.length;
+    return Object.keys(game.players).every(playerHasAnswered);
+  }
+
+  function canAskAnotherQuestion(game) {
+    return hasEveryPlayerAnswered(game) && !isGameOver(game);
+  }
+
+  function isGameOver(game) {
+    return game.status === 'done' || game.questions.length >= 10 && hasEveryPlayerAnswered(game);
   }
 
 }
@@ -184,6 +259,7 @@ async function createGame(db, name, user) {
     players: { [user._id]: user },
     playerResponses: {},
     questions: [],
+    createdAt: new Date(),
   };
   await db.collection('games').insertOne(game);
   return game;

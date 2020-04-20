@@ -85,21 +85,40 @@
         android:visibility="visible"
         android:padding="20dp"
         android:orientation="vertical">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/game_question_counter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="1/10"
+                android:textColor="#444"
+                android:textSize="20sp"/>
+            <TextView
+                android:id="@+id/game_question_points"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="X points"
+                android:textColor="#444"
+                android:textSize="20sp"/>
+        </RelativeLayout>
+
         <TextView
             android:id="@+id/game_question_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="This is a question?"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="20sp"
+            android:autoSizeMaxTextSize="30sp"
+            android:autoSizeStepGranularity="1sp"
+            android:maxLines="4"
+            android:text="This is a multiline question very cool yes indeed maybe 4 lines or maybe more?"
             android:textColor="#111"
             android:textSize="30sp"/>
-
-        <TextView
-            android:id="@+id/game_question_points"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="X points"
-            android:textColor="#111"
-            android:textSize="20sp"/>
 
         <RadioGroup
             android:id="@+id/game_answers_radio_group"
@@ -114,14 +133,36 @@
         </RadioGroup>
 
         <Button
+            android:id="@+id/submit_answer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingVertical="20dp"
             android:textSize="22sp"
             android:textColor="#fff"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="20dp"
             android:backgroundTint="@color/colorPrimaryDark"
             android:text="Submit Answer"
             android:onClick="submitAnswer"/>
+
+        <TextView
+            android:id="@+id/message_under_submit_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textAlignment="center"
+            android:text="Some message here"/>
+
+        <LinearLayout
+            android:id="@+id/game_scores"
+            android:orientation="vertical"
+            android:background="#e5e5e5"
+            android:padding="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>
