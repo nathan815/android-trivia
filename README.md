@@ -6,6 +6,8 @@ Multiplayer trivia game for Android
 - Client side: Java, Android, [socket.io java client](https://github.com/socketio/socket.io-client-java),
 and [Gson](https://github.com/google/gson)
 
+<img src="https://i.imgur.com/xdE1PMt.png" width="100%" />
+
 ## Prerequisites
 - Android Studio
 - Java 8
