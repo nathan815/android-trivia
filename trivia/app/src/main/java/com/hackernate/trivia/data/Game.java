@@ -121,6 +121,15 @@ public class Game {
         return players.size();
     }
 
+    public String getFormattedStatusText() {
+        switch(status) {
+            case "waiting": return "Waiting";
+            case "inplay": return "In Play";
+            case "done": return "Game Over";
+            default: return "n/a";
+        }
+    }
+
     @Override
     public String toString() {
         return "Game{" +

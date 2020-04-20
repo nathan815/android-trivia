@@ -1,6 +1,8 @@
 package com.hackernate.trivia;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,10 +11,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.hackernate.trivia.data.Game;
 import com.hackernate.trivia.data.User;
 
+import java.util.Collections;
 import java.util.UUID;
 
 import io.socket.client.Socket;
@@ -65,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         manager.getMyGames(games -> runOnUiThread(() -> {
             gameList.removeAllViews();
             gameListNoGamesText.setVisibility(games.size() == 0 ? View.VISIBLE : View.GONE);
+            Collections.reverse(games);
             for(Game game : games) {
                 gameList.addView(renderGameItem(game));
             }
@@ -75,9 +80,11 @@ public class MainActivity extends AppCompatActivity {
         View row = getLayoutInflater().inflate(R.layout.game_list_row, gameList, false);
         TextView nameText = row.findViewById(R.id.game_row_name);
         nameText.setText(game.name);
-        TextView codeText = row.findViewById(R.id.game_row_game_code);
-        codeText.setText(game.id);
+        TextView statusText = row.findViewById(R.id.game_row_status_text);
+        statusText.setText(game.getFormattedStatusText() + " - " + game.id);
         Button viewBtn = row.findViewById(R.id.game_row_btn);
+        viewBtn.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.colorPrimary));
+        viewBtn.setTextColor(Color.rgb(255, 255, 255));
         viewBtn.setOnClickListener((view) -> {
             navigateToGame(game.id);
             view.setEnabled(false);
