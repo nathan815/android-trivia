@@ -16,6 +16,8 @@ public class Game {
 
     private String ownerId;
 
+    private Map<String, List<Integer>> playerResponses;
+
     private Map<String, User> players;
 
     public List<Question> questions;
@@ -33,6 +35,10 @@ public class Game {
     }
     public boolean hasStarted() {
         return status.equals("inplay");
+    }
+
+    public void setPlayerResponses(String userId, List<Integer> responses) {
+        playerResponses.put(userId, responses);
     }
 
     public void start() {
@@ -58,7 +64,17 @@ public class Game {
     public int playersCount()  {
         return players.size();
     }
-    public void submitAnswer(String userId, int answerIndex) {
 
+    @Override
+    public String toString() {
+        return "Game{" +
+                "name='" + name + '\'' +
+                ", id='" + id + '\'' +
+                ", status='" + status + '\'' +
+                ", ownerId='" + ownerId + '\'' +
+                ", playerResponses=" + playerResponses +
+                ", players=" + players +
+                ", questions=" + questions +
+                '}';
     }
 }

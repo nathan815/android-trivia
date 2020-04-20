@@ -121,6 +121,7 @@
             android:textColor="#fff"
             android:layout_marginTop="30dp"
             android:backgroundTint="@color/colorPrimaryDark"
-            android:text="Submit Answer" />
+            android:text="Submit Answer"
+            android:onClick="submitAnswer"/>
     </LinearLayout>
 </LinearLayout>

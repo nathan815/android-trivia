@@ -152,8 +152,8 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
             radio.setText(answer);
             radio.setTextSize(25);
             radio.setTag(i);
-            i++;
             radios.add(radio);
+            i++;
         }
         Collections.shuffle(radios);
         for(RadioButton radio : radios) {
@@ -170,6 +170,15 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
         ClipData clip = ClipData.newPlainText("game code", game.id);
         clipboard.setPrimaryClip(clip);
         Utils.showBottomToast(this, "Copied to clipboard", Toast.LENGTH_SHORT);
+    }
+
+    public void submitAnswer(View v) {
+        int id = answerRadioGroup.getCheckedRadioButtonId();
+        if(id == -1) {
+            return;
+        }
+        RadioButton btn = findViewById(id);
+        gameManager.submitAnswerForCurrentQuestion((int)btn.getTag());
     }
 }
 

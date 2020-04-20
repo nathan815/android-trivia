@@ -5,6 +5,12 @@ import com.hackernate.trivia.data.Game;
 import com.hackernate.trivia.data.Question;
 import com.hackernate.trivia.data.User;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import io.socket.client.Socket;
 
 public class GameManager {
@@ -40,6 +46,10 @@ public class GameManager {
         });
     }
 
+    public void submitAnswerForCurrentQuestion(int answerIndex) {
+        socket.emit("game:submitAnswer", gameId, answerIndex);
+    }
+
     public void startGame() {
         socket.emit("game:start", gameId);
     }
@@ -54,6 +64,29 @@ public class GameManager {
             System.out.println("question: " + question);
             game.questions.add(question);
             listener.gameUpdated();
+        });
+
+        socket.on("game:playerAnswer", (args) -> {
+            try {
+                JSONObject data = (JSONObject)args[0];
+                String gameId = data.getString("gameId");
+
+                if(!this.gameId.equals(gameId)) {
+                    return;
+                }
+
+                String userId = data.getString("userId");
+                List<Integer> responses = new ArrayList<>();
+                for(int i = 0; i < data.getJSONArray("responses").length(); i++) {
+                    responses.add((int) data.getJSONArray("responses").get(i));
+                }
+                game.setPlayerResponses(userId, responses);
+
+                listener.gameUpdated();
+
+            } catch(JSONException e) {
+                e.printStackTrace();
+            }
         });
 
         socket.on("game:player.join", (args) -> {
