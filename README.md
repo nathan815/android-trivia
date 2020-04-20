@@ -24,4 +24,4 @@ and [Gson](https://github.com/google/gson)
    1. Open `trivia` directory in Android Studio
 
 ## Notes
-This code was thrown together in a couple days. It can definitly use some design work. 
+This code was thrown together in a couple days. It can definitely use some design work and a better structure. 
