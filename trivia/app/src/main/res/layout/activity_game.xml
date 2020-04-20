@@ -1,168 +1,185 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".GameActivity">
 
     <LinearLayout
-        android:id="@+id/game_not_started"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingVertical="50dp"
-        android:visibility="gone"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="30sp"
-            android:textAlignment="center"
-            android:text="Game Code:" />
-        <TextView
-            android:id="@+id/game_code_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="55sp"
-            android:textAlignment="center"
-            android:text="ABC123"
-            android:onClick="copyCode"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorAccent"
-            android:textColor="#fff"
-            android:textSize="20sp"
-            android:padding="20dp"
-            android:layout_marginTop="15dp"
-            android:text="Copy Code"
-            android:onClick="copyCode"/>
-        <TextView
-            android:id="@+id/players_in_game_count_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="30sp"
-            android:textAlignment="center"
-            android:layout_marginTop="60dp"
-            android:text="Players in Game: 1/4" />
-        <TextView
-            android:id="@+id/players_in_game_names_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textAlignment="center"
-            android:layout_marginTop="10dp"
-            android:text="name, name, name" />
-        <Button
-            android:id="@+id/start_game_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
-            android:textColor="#fff"
-            android:textSize="25sp"
-            android:paddingVertical="25dp"
-            android:paddingHorizontal="30dp"
-            android:layout_marginTop="50dp"
-            android:enabled="false"
-            android:alpha="0.3"
-            android:text="Start Game"
-            android:onClick="startGame" />
-        <TextView
-            android:id="@+id/waiting_owner_start_game"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:text="Waiting for owner to start game" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/game_started"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible"
-        android:padding="20dp"
-        android:orientation="vertical">
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:id="@+id/game_question_counter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:text="1/10"
-                android:textColor="#444"
-                android:textSize="20sp"/>
-            <TextView
-                android:id="@+id/game_question_points"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:text="X points"
-                android:textColor="#444"
-                android:textSize="20sp"/>
-        </RelativeLayout>
-
-        <TextView
-            android:id="@+id/game_question_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="20sp"
-            android:autoSizeMaxTextSize="30sp"
-            android:autoSizeStepGranularity="1sp"
-            android:maxLines="4"
-            android:text="This is a multiline question very cool yes indeed maybe 4 lines or maybe more?"
-            android:textColor="#111"
-            android:textSize="30sp"/>
-
-        <RadioGroup
-            android:id="@+id/game_answers_radio_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp">
-            <RadioButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="25sp"
-                android:text="Answer 1" />
-        </RadioGroup>
-
-        <Button
-            android:id="@+id/submit_answer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="20dp"
-            android:textSize="22sp"
-            android:textColor="#fff"
-            android:layout_marginTop="20dp"
-            android:backgroundTint="@color/colorPrimaryDark"
-            android:text="Submit Answer"
-            android:onClick="submitAnswer"/>
-
-        <TextView
-            android:id="@+id/message_under_submit_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:textAlignment="center"
-            android:text="Some message here"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:context=".GameActivity">
 
         <LinearLayout
-            android:id="@+id/game_scores"
-            android:orientation="vertical"
-            android:background="#e5e5e5"
-            android:padding="15dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginHorizontal="5dp"
+            android:id="@+id/game_not_started"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingVertical="50dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Game Code:"
+                android:textAlignment="center"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/game_code_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="copyCode"
+                android:text="ABC123"
+                android:textAlignment="center"
+                android:textSize="55sp" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:backgroundTint="@color/colorAccent"
+                android:onClick="copyCode"
+                android:padding="20dp"
+                android:text="Copy Code"
+                android:textColor="#fff"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/players_in_game_count_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="60dp"
+                android:text="Players in Game: 1/4"
+                android:textAlignment="center"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/players_in_game_names_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="name, name, name"
+                android:textAlignment="center"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/start_game_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:alpha="0.3"
+                android:backgroundTint="@color/colorPrimary"
+                android:enabled="false"
+                android:onClick="startGame"
+                android:paddingHorizontal="30dp"
+                android:paddingVertical="25dp"
+                android:text="Start Game"
+                android:textColor="#fff"
+                android:textSize="25sp" />
+
+            <TextView
+                android:id="@+id/waiting_owner_start_game"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Waiting for owner to start game"
+                android:textAlignment="center"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/game_started"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:visibility="visible">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/game_question_counter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:text="1/10"
+                    android:textColor="#444"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/game_question_points"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="X points"
+                    android:textColor="#444"
+                    android:textSize="20sp" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/game_question_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="30sp"
+                android:autoSizeMinTextSize="20sp"
+                android:autoSizeStepGranularity="1sp"
+                android:autoSizeTextType="uniform"
+                android:maxLines="4"
+                android:text="What is the name for a question that spans multiple lines?"
+                android:textColor="#111"
+                android:textSize="30sp" />
+
+            <RadioGroup
+                android:id="@+id/game_answers_radio_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp">
+
+                <RadioButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Answer 1"
+                    android:textSize="25sp" />
+            </RadioGroup>
+
+            <Button
+                android:id="@+id/submit_answer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="@color/colorPrimaryDark"
+                android:onClick="submitAnswer"
+                android:paddingVertical="20dp"
+                android:text="Submit Answer"
+                android:textColor="#fff"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@+id/message_under_submit_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Some message here"
+                android:textAlignment="center" />
+
+            <LinearLayout
+                android:id="@+id/game_scores"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_marginTop="10dp"
+                android:background="#e5e5e5"
+                android:orientation="vertical"
+                android:padding="15dp">
 
 
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</ScrollView>
