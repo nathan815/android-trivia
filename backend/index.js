@@ -76,6 +76,10 @@ function setupSocketListeners(db, socket) {
       joinError('Game not found');
       return;
     }
+    if (game.status !== 'waiting') {
+      joinError('This game has already started!');
+      return;
+    }
     if (game.players.length === 4) {
       joinError('Max of 4 players already in this game');
       return;
@@ -226,7 +230,7 @@ function setupSocketListeners(db, socket) {
 
 function main(db) {
   app.get('/generate', async function (req, res) {
-    const questions = await triviaApi();
+    const questions = await triviaApi(50);
     console.log('questions', questions);
     db.collection('questions').insertMany(questions);
     res.send(questions);
