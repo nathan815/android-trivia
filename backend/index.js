@@ -8,7 +8,6 @@ const shortid = require('shortid');
 
 const triviaApi = require('./trivia-api');
 
-
 shortid.characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@$');
 
 const client = new mongodb.MongoClient('mongodb://127.0.0.1:27017', { useUnifiedTopology: true });
@@ -20,10 +19,24 @@ client.connect(function (err) {
   main(db);
 });
 
-const games = [];
-const users = {};
-const sockets = {};
+function main(db) {
+  app.get('/generate', async function (req, res) {
+    const questions = await triviaApi(50);
+    console.log('questions', questions);
+    db.collection('questions').insertMany(questions);
+    res.send(questions);
+  });
 
+  io.on('connection', (socket) => {
+    setupSocketListeners(db, socket);
+  });
+
+  server.listen(3000, () => {
+    console.log('listening on *:3000');
+  });
+}
+
+const sockets = {};
 function setupSocketListeners(db, socket) {
   sockets[socket.id] = { socket };
 
@@ -49,7 +62,6 @@ function setupSocketListeners(db, socket) {
     }
     console.log('user:enter, dbuser=', dbUser);
     sockets[socket.id].user = dbUser;
-    users[user._id] = dbUser;
 
     // join this socket to all games this user is already a part of
     const games = await findUserGames(db, user._id);
@@ -231,24 +243,6 @@ function setupSocketListeners(db, socket) {
   }
 
 }
-
-function main(db) {
-  app.get('/generate', async function (req, res) {
-    const questions = await triviaApi(50);
-    console.log('questions', questions);
-    db.collection('questions').insertMany(questions);
-    res.send(questions);
-  });
-
-  io.on('connection', (socket) => {
-    setupSocketListeners(db, socket);
-  });
-
-  server.listen(3000, () => {
-    console.log('listening on *:3000');
-  });
-}
-
 
 function findUserById(db, id) {
   return db.collection('users').findOne({ _id: id });
