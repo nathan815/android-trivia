@@ -21,9 +21,7 @@ and [Gson](https://github.com/google/gson)
    1. `cd backend`
    2. `cp .env.example .env`
    3. `npm install`
-
-Run the server with `node index.js`. A MongoDB server needs to be running. Specify info for it in .env file.
-
+   4. Run the server with `node index.js`. A MongoDB server needs to be running. Specify info for it in .env file.
 3. Android
    1. Open `android` directory in Android Studio
 
