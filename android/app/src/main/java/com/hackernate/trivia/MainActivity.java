@@ -1,7 +1,6 @@
 package com.hackernate.trivia;
 
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -71,12 +70,12 @@ public class MainActivity extends AppCompatActivity {
             gameListNoGamesText.setVisibility(games.size() == 0 ? View.VISIBLE : View.GONE);
             Collections.reverse(games);
             for(Game game : games) {
-                gameList.addView(renderGameItem(game));
+                gameList.addView(makeGameListRow(game));
             }
         }));
     }
 
-    private View renderGameItem(Game game) {
+    private View makeGameListRow(Game game) {
         View row = getLayoutInflater().inflate(R.layout.game_list_row, gameList, false);
         TextView nameText = row.findViewById(R.id.game_row_name);
         nameText.setText(game.name);
