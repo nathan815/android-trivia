@@ -8,14 +8,17 @@ const shortid = require('shortid');
 
 const triviaApi = require('./trivia-api');
 
+require('dotenv').config();
 shortid.characters('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@$');
 
-const client = new mongodb.MongoClient('mongodb://127.0.0.1:27017', { useUnifiedTopology: true });
-const DB_NAME = 'trivia';
+const client = new mongodb.MongoClient(
+  `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}`, 
+  { useUnifiedTopology: true }
+);
 
 client.connect(function (err) {
   console.log('Connected successfully to database server');
-  const db = client.db(DB_NAME);
+  const db = client.db(process.env.DB_NAME);
   main(db);
 });
 
