@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
+    "mongodb": "^3.5.6",
     "node-fetch": "^2.6.0",
     "shortid": "^2.2.15",
     "socket.io": "^2.3.0"
