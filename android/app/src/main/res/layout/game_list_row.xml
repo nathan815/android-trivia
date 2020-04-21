@@ -39,6 +39,8 @@
                 android:id="@+id/game_row_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:backgroundTint="@color/colorPrimary"
+                android:textColor="#fff"
                 android:text="View" />
         </LinearLayout>
     </LinearLayout>

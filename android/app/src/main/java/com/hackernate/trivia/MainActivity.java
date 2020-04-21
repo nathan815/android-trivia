@@ -82,8 +82,6 @@ public class MainActivity extends AppCompatActivity {
         TextView statusText = row.findViewById(R.id.game_row_status_text);
         statusText.setText(game.getFormattedStatusText() + " - " + game.id);
         Button viewBtn = row.findViewById(R.id.game_row_btn);
-        viewBtn.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.colorPrimary));
-        viewBtn.setTextColor(Color.rgb(255, 255, 255));
         viewBtn.setOnClickListener((view) -> {
             navigateToGame(game.id);
             view.setEnabled(false);
