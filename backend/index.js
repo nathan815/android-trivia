@@ -34,8 +34,8 @@ function main(db) {
     setupSocketListeners(db, socket);
   });
 
-  server.listen(3000, () => {
-    console.log('listening on *:3000');
+  server.listen(process.env.APP_PORT, () => {
+    console.log(`Socket server listening on *:${process.env.APP_PORT}`);
   });
 }
 
