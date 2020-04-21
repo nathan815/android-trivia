@@ -178,7 +178,11 @@ function setupSocketListeners(db, socket) {
   });
 
   socket.on('game:list', async () => {
-    const games = await findUserGames(db, getCurrentUser()._id);
+    const user = getCurrentUser();
+    if (!user) {
+      return;
+    }
+    const games = await findUserGames(db, user._id);
     socket.emit('game:list.response', JSON.stringify(games));
   });
 
