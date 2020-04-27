@@ -81,10 +81,9 @@ public class MainManager {
     }
 
     public void getMyGames(Consumer<List<Game>> callback) {
-        socket.emit("game:list");
-        socket.once("game:list.response", (args) -> {
+        socket.emit("game:list", null, (ackArgs) -> {
             Type listType = new TypeToken<ArrayList<Game>>(){}.getType();
-            List<Game> games = gson.fromJson((String)args[0], listType);
+            List<Game> games = gson.fromJson((String)ackArgs[0], listType);
             callback.accept(games);
         });
     }

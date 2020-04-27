@@ -200,13 +200,14 @@ function setupSocketListeners(db, socket) {
     await askNextQuestion(db, game);
   });
 
-  socket.on('game:list', async () => {
+  socket.on('game:list', async (callback) => {
+    console.log('game:list', getCurrentUser());
     const user = getCurrentUser();
     if (!user) {
       return;
     }
     const games = await findUserGames(db, user._id);
-    socket.emit('game:list.response', JSON.stringify(games));
+    callback(JSON.stringify(games));
   });
 
   async function askNextQuestion(db, game) {
@@ -293,7 +294,7 @@ async function findUserGames(db, userId) {
       $exists: true
     }
   }).toArray();
-  console.log('user games', userId, games.map(g => ({ id: g._id, name: g.name })));
+  console.log('findUserGames userId=', userId, 'games=', games.map(g => ({ id: g._id, name: g.name })));
   return games;
 }
 
