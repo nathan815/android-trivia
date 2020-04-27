@@ -128,10 +128,10 @@ function setupSocketListeners(db, socket) {
     callback(game._id);
   });
 
-  socket.on('game:fetch', async (id) => {
+  socket.on('game:fetch', async (id, callback) => {
     console.log('game:fetch', id);
     const game = await findGame(db, id);
-    socket.emit('game:fetch.response', JSON.stringify(game));
+    callback(JSON.stringify(game));
   });
 
   socket.on('game:submitAnswer', async (gameId, answerIndex) => {

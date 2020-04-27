@@ -48,8 +48,7 @@ public class GameManager {
     }
 
     private void loadGame() {
-        socket.emit("game:fetch", gameId);
-        socket.once("game:fetch.response", (args) -> {
+        socket.emit("game:fetch", new Object[] { gameId }, (args) -> {
             game = new Gson().fromJson(args[0].toString(), Game.class);
             listener.gameLoaded();
         });
