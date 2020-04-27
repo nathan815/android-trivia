@@ -112,7 +112,7 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
         runOnUiThread(() -> {
             // If this is an update of scores for the user on this device,
             // also re-render answers/submit button
-            if (currentUser.id.equals(userId)) {
+            if (currentUser.getId().equals(userId)) {
                 disableAnswers();
             }
             renderPlayerScoresBox();
@@ -173,7 +173,7 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
 
     private void renderWaitingView() {
         gameNotStartedContainer.setVisibility(View.VISIBLE);
-        boolean isOwner = game.getOwnerId().equals(currentUser.id);
+        boolean isOwner = game.getOwnerId().equals(currentUser.getId());
 
         waitingOnOwnerStartGameText.setVisibility(View.GONE);
 
@@ -183,13 +183,13 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
                 startGameBtn.setAlpha(1.0f);
             } else {
                 waitingOnOwnerStartGameText.setVisibility(View.VISIBLE);
-                waitingOnOwnerStartGameText.setText("Waiting for " + game.getOwner().username + " to start");
+                waitingOnOwnerStartGameText.setText("Waiting for " + game.getOwner().getUsername() + " to start");
             }
         }
 
         playersInGameCountText.setText("Players in Game: " + game.playersCount() + "/4");
         playersInGameNamesText.setText(game.getPlayers().stream()
-                .map(u -> u.username)
+                .map(User::getUsername)
                 .collect(Collectors.joining(", ")));
         gameCodeText.setText(game.id);
     }
@@ -215,7 +215,7 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
         answerRadioGroup.removeAllViews();
         List<RadioButton> radios = new ArrayList<>();
         int i = 0;
-        int selectedIndex = game.getCurrentSelectedAnswer(currentUser.id);
+        int selectedIndex = game.getCurrentSelectedAnswer(currentUser.getId());
         boolean hasSelectedAnswer = selectedIndex != -1;
 
         for (String answer : question.getAnswers()) {
@@ -231,7 +231,7 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
 
         // create a random object seeded from the game ID and current user ID
         // for deterministic shuffling per game and user
-        Random random = new Random((gameId + currentUser.id).hashCode());
+        Random random = new Random((gameId + currentUser.getId()).hashCode());
         Collections.shuffle(radios, random);
 
         for (RadioButton radio : radios) {
@@ -265,12 +265,12 @@ public class GameActivity extends AppCompatActivity implements GameManager.Liste
 
             TextView tv = new TextView(this);
 
-            int currentAnswerIndex = game.getCurrentSelectedAnswer(user.id);
+            int currentAnswerIndex = game.getCurrentSelectedAnswer(user.getId());
             boolean isUserCorrect = currentAnswerIndex == question.getCorrectIndex();
             String currentAnswerInfo = currentAnswerIndex != -1 ? (isUserCorrect ? "✔︎" : "⛔️") : "";
             String suffix = (points == 1 ? "" : "s");
 
-            tv.setText(String.format("%s: %d point%s %s", user.username, points, suffix, currentAnswerInfo));
+            tv.setText(String.format("%s: %d point%s %s", user.getUsername(), points, suffix, currentAnswerInfo));
             tv.setTextSize(20);
 
             if (user.equals(currentUser)) {

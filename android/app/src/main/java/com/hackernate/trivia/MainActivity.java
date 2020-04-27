@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setUpInterface(User user) {
         manager.userEntered(user);
-        usernameText.setText("Welcome, " + user.username);
+        usernameText.setText("Welcome, " + user.getUsername());
     }
 
     private void renderGameList() {

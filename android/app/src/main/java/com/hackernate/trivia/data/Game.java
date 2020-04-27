@@ -74,7 +74,7 @@ public class Game {
 
     public Map<User, Integer> getPlayerPointsMap() {
         return getPlayers().stream().collect(
-                Collectors.toMap(Function.identity(), user -> calculatePlayerPoints(user.id))
+                Collectors.toMap(Function.identity(), user -> calculatePlayerPoints(user.getId()))
         );
     }
 
@@ -110,7 +110,7 @@ public class Game {
     }
 
     public void addPlayer(User player) {
-        this.players.put(player.id, player);
+        this.players.put(player.getId(), player);
     }
 
     public boolean canBeStarted() {

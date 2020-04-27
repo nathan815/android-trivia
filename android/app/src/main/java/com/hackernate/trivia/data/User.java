@@ -6,13 +6,22 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Objects;
 
 public class User {
+
     @SerializedName("_id")
-    public String id;
-    public String username;
+    private String id;
+    private String username;
 
     public User(String id, String username) {
         this.id = id;
         this.username = username;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     @Override
@@ -20,7 +29,7 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id.equals(user.id) &&
+        return id.equals(user.getId()) &&
                 username.equals(user.username);
     }
 
