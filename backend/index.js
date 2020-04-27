@@ -158,9 +158,9 @@ function setupSocketListeners(db, socket) {
       updateGame(db, game);
     }
 
-    socket.emit('game:submitAnswer.response',
-      answerIndex === currentQuestion.correctIndex ? 'correct' : 'incorrect'
-    );
+    if(typeof callback === 'function') {
+      callback(answerIndex === currentQuestion.correctIndex);
+    }
 
     io.sockets.in('game:' + game._id).emit('game:playerAnswer', {
       gameId: game._id,
