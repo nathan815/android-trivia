@@ -3,9 +3,10 @@ package com.hackernate.trivia.data;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Game {
 
@@ -72,24 +73,23 @@ public class Game {
     }
 
     public Map<User, Integer> getPlayerPointsMap() {
-        Map<User, Integer> map = new HashMap<>();
-        for (User player : getPlayers()) {
-            map.put(player, calculatePlayerPoints(player.id));
-        }
-        return map;
+        return getPlayers().stream().collect(
+                Collectors.toMap(Function.identity(), user -> calculatePlayerPoints(user.id))
+        );
     }
+
     private int calculatePlayerPoints(String userId) {
         List<Integer> responses = playerResponses.get(userId);
-        if(responses == null) {
+        if (responses == null) {
             return 0;
         }
         int points = 0;
         for (int qIndex = 0; qIndex < questions.size() && qIndex < responses.size(); qIndex++) {
             int answerIndex = responses.get(qIndex);
             Question question = questions.get(qIndex);
-            if(answerIndex != -1) {
+            if (answerIndex != -1) {
                 boolean isCorrect = answerIndex == question.getCorrectIndex();
-                if(isCorrect) {
+                if (isCorrect) {
                     points += question.getPoints();
                 }
             }
@@ -122,11 +122,15 @@ public class Game {
     }
 
     public String getFormattedStatusText() {
-        switch(status) {
-            case "waiting": return "Waiting";
-            case "inplay": return "In Play";
-            case "done": return "Game Over";
-            default: return "n/a";
+        switch (status) {
+            case "waiting":
+                return "Waiting";
+            case "inplay":
+                return "In Play";
+            case "done":
+                return "Game Over";
+            default:
+                return "n/a";
         }
     }
 
