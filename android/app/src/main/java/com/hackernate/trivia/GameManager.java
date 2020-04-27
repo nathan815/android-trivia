@@ -81,7 +81,7 @@ public class GameManager {
             }, 500);
         });
 
-        socket.on("game:playerAnswer", (args) -> {
+        socket.on("game:player.answer", (args) -> {
             if (game == null) return;
             try {
                 JSONObject data = (JSONObject) args[0];
@@ -140,6 +140,8 @@ public class GameManager {
     public void stopListeners() {
         socket.off("game:question");
         socket.off("game:player.join");
+        socket.off("game:player.answer");
         socket.off("game:starting");
+        socket.off("game:done");
     }
 }

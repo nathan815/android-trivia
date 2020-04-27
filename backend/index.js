@@ -162,7 +162,7 @@ function setupSocketListeners(db, socket) {
       callback(answerIndex === currentQuestion.correctIndex);
     }
 
-    io.sockets.in('game:' + game._id).emit('game:playerAnswer', {
+    io.sockets.in('game:' + game._id).emit('game:player.answer', {
       gameId: game._id,
       userId: currentUser._id,
       responses: currentPlayerResponses
