@@ -73,15 +73,10 @@ public class MainManager {
     }
 
     public void joinGame(String id, BiConsumer<Boolean, String> callback) {
-        socket.emit("game:join", id);
-        socket.once("game:joined", (args) -> {
-            socket.off("game:join.error");
-            callback.accept(true, null);
-        });
-        socket.once("game:join.error", (args) -> {
-            System.out.println("error: "+ args[0]);
-            socket.off("game:joined");
-            callback.accept(false, (String)args[0]);
+        socket.emit("game:join", new Object[] { id }, (ackArgs) -> {
+            boolean success = (boolean)ackArgs[0];
+            String message = ackArgs[1] == null ? null : (String)ackArgs[1];
+            callback.accept(success, message);
         });
     }
 

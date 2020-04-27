@@ -75,18 +75,21 @@ function setupSocketListeners(db, socket) {
     });
   });
 
-  socket.on('game:join', async (code) => {
-    const currentUser = getCurrentUser();
+  socket.on('game:join', async (code, callback) => {
     function joinError(err) {
-      console.log('game:join.error: ' + err);
-      socket.emit('game:join.error', err);
+      console.log('game:join error: ' + err);
+      callback(false, err);
     }
+    
+    const currentUser = getCurrentUser();
     if (!currentUser) {
       joinError('Not logged in');
       return;
     }
+
     console.log('game:join', code);
     const game = await findGame(db, code);
+
     if (!game) {
       joinError('Game not found');
       return;
@@ -99,14 +102,19 @@ function setupSocketListeners(db, socket) {
       joinError('Max of 4 players already in this game');
       return;
     }
+
     if (!game.players[currentUser._id]) {
       game.players[currentUser._id] = currentUser;
       updateGame(db, game);
     }
+
     socket.join('game:' + code);
-    socket.emit('game:joined', game._id);
+
+    // Notify everyone in the game that this player joined
     io.sockets.in('game:' + code).emit('game:player.join', game._id,
       JSON.stringify(currentUser));
+
+    callback(true, null);
   });
 
   socket.on('game:create', async (name, callback) => {
