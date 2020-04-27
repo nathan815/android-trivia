@@ -14,6 +14,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 public class GameManager {
     private Socket socket;
@@ -40,7 +41,7 @@ public class GameManager {
         this.socket = socket;
         this.listener = listener;
         loadGame();
-        setupListeners();
+        startListeners();
     }
 
     public Game getGame() {
@@ -48,7 +49,7 @@ public class GameManager {
     }
 
     private void loadGame() {
-        socket.emit("game:fetch", new Object[] { gameId }, (args) -> {
+        socket.emit("game:fetch", new Object[]{gameId}, (args) -> {
             game = new Gson().fromJson(args[0].toString(), Game.class);
             listener.gameLoaded();
         });
@@ -62,86 +63,92 @@ public class GameManager {
         socket.emit("game:start", gameId);
     }
 
-    private void setupListeners() {
-        socket.on("game:question", (args) -> {
-            if (game == null) return;
-            String gameId = (String) args[0];
-            if (!this.gameId.equals(gameId)) {
-                return;
-            }
-            Question question = gson.fromJson((String) args[1], Question.class);
-            System.out.println("game:question event. question=" + question);
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    System.out.println("updating game with question");
-                    game.questions.add(question);
-                    listener.updatedWithNextQuestion();
-                }
-            }, 500);
-        });
-
-        socket.on("game:player.answer", (args) -> {
-            if (game == null) return;
-            try {
-                JSONObject data = (JSONObject) args[0];
-                String gameId = data.getString("gameId");
-
-                if (!this.gameId.equals(gameId)) {
-                    return;
-                }
-
-                String userId = data.getString("userId");
-                List<Integer> responses = new ArrayList<>();
-                for (int i = 0; i < data.getJSONArray("responses").length(); i++) {
-                    responses.add((int) data.getJSONArray("responses").get(i));
-                }
-                game.setPlayerResponses(userId, responses);
-
-                listener.updatedWithPlayerScores(userId);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        });
-
-        socket.on("game:player.join", (args) -> {
-            if (game == null) return;
-            String gameId = (String) args[0];
-            if (!this.gameId.equals(gameId)) {
-                return;
-            }
-            User user = gson.fromJson((String) args[1], User.class);
-            System.out.println("PLAYER JOIN: " + user);
-            game.addPlayer(user);
-            listener.gameUpdated();
-        });
-
-        socket.on("game:starting", (args) -> {
-            if (game == null) return;
-            String gameId = (String) args[0];
-            if (!this.gameId.equals(gameId)) {
-                return;
-            }
-            System.out.println("GAME START!");
-            game.setAsInPlay();
-        });
-
-        socket.on("game:done", (args) -> {
-            String gameId = (String) args[0];
-            if (!this.gameId.equals(gameId)) {
-                return;
-            }
-            System.out.println("GAME OVER!");
-            loadGame();
-        });
+    private void startListeners() {
+        socket.on("game:player.join", playerJoinListener);
+        socket.on("game:player.answer", playerAnswerListener);
+        socket.on("game:starting", gameStartingListener);
+        socket.on("game:question", questionListener);
+        socket.on("game:done", gameDoneListener);
     }
 
     public void stopListeners() {
-        socket.off("game:question");
         socket.off("game:player.join");
         socket.off("game:player.answer");
         socket.off("game:starting");
+        socket.off("game:question");
         socket.off("game:done");
     }
+
+    private Emitter.Listener questionListener = (args) -> {
+        if (game == null) return;
+        String gameId = (String) args[0];
+        if (!this.gameId.equals(gameId)) {
+            return;
+        }
+        Question question = gson.fromJson((String) args[1], Question.class);
+        System.out.println("game:question event. question=" + question);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("updating game with question");
+                game.questions.add(question);
+                listener.updatedWithNextQuestion();
+            }
+        }, 500);
+    };
+
+    private Emitter.Listener playerAnswerListener = (args) -> {
+        if (game == null) return;
+        try {
+            JSONObject data = (JSONObject) args[0];
+            String gameId = data.getString("gameId");
+
+            if (!this.gameId.equals(gameId)) {
+                return;
+            }
+
+            String userId = data.getString("userId");
+            List<Integer> responses = new ArrayList<>();
+            for (int i = 0; i < data.getJSONArray("responses").length(); i++) {
+                responses.add((int) data.getJSONArray("responses").get(i));
+            }
+            game.setPlayerResponses(userId, responses);
+
+            listener.updatedWithPlayerScores(userId);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    };
+
+    private Emitter.Listener playerJoinListener = (args) -> {
+        if (game == null) return;
+        String gameId = (String) args[0];
+        if (!this.gameId.equals(gameId)) {
+            return;
+        }
+        User user = gson.fromJson((String) args[1], User.class);
+        System.out.println("PLAYER JOIN: " + user);
+        game.addPlayer(user);
+        listener.gameUpdated();
+    };
+
+    private Emitter.Listener gameStartingListener = (args) -> {
+        if (game == null) return;
+        String gameId = (String) args[0];
+        if (!this.gameId.equals(gameId)) {
+            return;
+        }
+        System.out.println("GAME START!");
+        game.setAsInPlay();
+    };
+
+    private Emitter.Listener gameDoneListener = (args) -> {
+        String gameId = (String) args[0];
+        if (!this.gameId.equals(gameId)) {
+            return;
+        }
+        System.out.println("GAME OVER!");
+        loadGame();
+    };
 }
