@@ -109,7 +109,7 @@ function setupSocketListeners(db, socket) {
       JSON.stringify(currentUser));
   });
 
-  socket.on('game:create', async (name) => {
+  socket.on('game:create', async (name, callback) => {
     console.log('game:create', name);
     name = name.trim();
     if (name == "") {
@@ -117,7 +117,7 @@ function setupSocketListeners(db, socket) {
     }
     const game = await createGame(db, name, sockets[socket.id].user);
     socket.join('game:' + game._id);
-    socket.emit('game:created', game._id);
+    callback(game._id);
   });
 
   socket.on('game:fetch', async (id) => {

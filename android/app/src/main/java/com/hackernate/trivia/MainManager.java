@@ -66,9 +66,9 @@ public class MainManager {
     }
 
     public void createGame(String name, Consumer<String> callback) {
-        socket.emit("game:create", name);
-        socket.once("game:created", (args) -> {
-            callback.accept((String)args[0]);
+        socket.emit("game:create", new Object[] { name }, (ackArgs) -> {
+            String gameId = (String)ackArgs[0];
+            callback.accept(gameId);
         });
     }
 
